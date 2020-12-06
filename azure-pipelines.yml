@@ -1,19 +1,47 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
+parameters:
+- name: PROJECT_PATH
+  displayName: The relative path to your project e.g. rjdkolb/mydependabot-exploration
+  type: string
+  default: ""
+- name: PACKAGE_MANAGER
+  displayName: Package manager type to scan
+  default: maven
+  values:
+  - bundler
+  - pip
+  - npm_and_yarn
+  - maven
+  - gradle
+  - cargo
+  - hex
+  - composer
+  - nuget
+  - dep
+  - go_modules
+  - elm
+  - submodules
+  - docker
+  - terraform
+- name: AZURE_HOSTNAME
+  displayName: If you have a custom Azure Devops URL, default value dev.azure.com
+  type: string
+  default: dev.azure.com
+- name: SECRET_AZURE_ACCESS_TOKEN
+  displayName: The secret SECRET_AZURE_ACCESS_TOKEN to access your repo
+  type: string
+  default: EMPTY
 trigger:
 - main
-
+ 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: docker run -v "$(pwd):/home/dependabot/dependabot-script" -w /home/dependabot/dependabot-script dependabot/dependabot-core bundle install -j 3 --path vendor 
+  displayName: 'Install Dependabot dependencies'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    docker run -v "$(pwd):/home/dependabot/dependabot-script" -w /home/dependabot/dependabot-script -e AZURE_ACCESS_TOKEN=$AZURE_ACCESS_TOKEN -e PROJECT_PATH=${{parameters.PROJECT_PATH}} -e PACKAGE_MANAGER=${{parameters.PACKAGE_MANAGER}} -e AZURE_HOSTNAME=${{parameters.AZURE_HOSTNAME}} dependabot/dependabot-core bundle exec ruby ./generic-update-script.rb
+  env:
+    AZURE_ACCESS_TOKEN: ${{parameters.SECRET_AZURE_ACCESS_TOKEN}} # the recommended way to map to an env variable
+  displayName: 'Run dependabot'
