@@ -19,6 +19,9 @@ Create a personal access token in Azure Devops
 
 ### Running pipeline with `azure-pipelines.yml`
 
-    * AZURE_HOSTNAME: default value `dev.azure.com`
-    * AZURE_ACCESS_TOKEN
-    * PROJECT_PATH: `YOURORG/project`
+    * Branch/tag e.g. master
+    * The relative path to your project e.g. rjdkolb/mydependabot-exploration
+    * Package manager type to scan
+    * If you have a custom Azure Devops URL, default value dev.azure.com
+    * The secret SECRET_AZURE_ACCESS_TOKEN to access your repo
+
